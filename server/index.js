@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const { searchStations, getBoard } = require('./iris');
+const { getWagenreihung } = require('./wagenreihung');
 
 const SOUNDS_DIR = path.join(__dirname, '..', 'public', 'sounds');
 
@@ -51,11 +52,21 @@ app.get('/api/sounds', (req, res) => {
   res.json(listSoundFiles(SOUNDS_DIR));
 });
 
-app.listen(PORT, () => {
-  console.log(`dilaeit-live läuft auf Port ${PORT}`);
+// Wagenstandanzeige (Perlenschnur) - nur fuer Fernverkehr zuverlässig verfuegbar
+app.get('/api/wagenreihung', async (req, res) => {
+  const { trainNumber, plannedTime, category } = req.query;
+  if (!trainNumber || !plannedTime) {
+    return res.status(400).json({ error: 'trainNumber und plannedTime (IRIS-Format) erforderlich' });
+  }
+  const result = await getWagenreihung(trainNumber, plannedTime, category);
+  res.json(result);
 });
 
-// Self-Ping gegen Render-Sleep, wie bei dilaeit
+app.listen(PORT, () => {
+  console.log(`iris-plus-simulator läuft auf Port ${PORT}`);
+});
+
+// Self-Ping gegen Render-Sleep, verhindert Einschlafen im Free-Tier
 if (process.env.APP_URL) {
   setInterval(() => {
     import('https').then(({ default: https }) => {
