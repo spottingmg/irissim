@@ -12,14 +12,16 @@
   const boardStationName = document.getElementById('board-station-name');
   const boardPlatformBadge = document.getElementById('board-platform-badge');
   const boardClock = document.getElementById('board-clock');
-  const boardRows = document.getElementById('board-rows');
+  const focusPanel = document.getElementById('focus-panel');
+  const wagonPanel = document.getElementById('wagon-panel');
+  const nextList = document.getElementById('next-list');
   const boardStatus = document.getElementById('board-status');
 
   let selectedStation = null; // { ril100, eva, name }
   let pollTimer = null;
   const POLL_MS = 25000;
 
-  window.dilaeitLive = { announceEnabled: true };
+  window.irisSimState = { announceEnabled: true };
 
   // ---------- Stationssuche ----------
 
@@ -60,7 +62,7 @@
     const stationQuery = selectedStation ? selectedStation.ril100 : raw;
     const platform = platformInput.value.trim();
     const type = typeSelect.value;
-    window.dilaeitLive.announceEnabled = announceToggle.checked;
+    window.irisSimState.announceEnabled = announceToggle.checked;
 
     openBoard(stationQuery, platform, type, selectedStation ? selectedStation.name : raw);
   });
@@ -77,7 +79,9 @@
     boardStationName.textContent = displayName;
     boardPlatformBadge.textContent = platform ? `Gleis ${platform}` : 'alle Gleise';
     boardStatus.textContent = 'Verbinde mit IRIS-TTS …';
-    boardRows.innerHTML = '';
+    focusPanel.innerHTML = '';
+    wagonPanel.classList.add('hidden');
+    nextList.innerHTML = '';
 
     fetchBoard(stationQuery, platform, type);
     clearInterval(pollTimer);
@@ -96,70 +100,122 @@
       }
       boardStatus.textContent = `Zuletzt aktualisiert: ${new Date(data.generatedAt).toLocaleTimeString('de-DE')}`;
       renderBoard(data);
-      window.dispatchEvent(new CustomEvent('dilaeit-board-update', { detail: data }));
+      window.dispatchEvent(new CustomEvent('board-update', { detail: data }));
     } catch (e) {
       boardStatus.textContent = 'Verbindung zum Server verloren – versuche erneut …';
     }
   }
 
+  let lastWagonKey = null;
+
   function renderBoard(data) {
-    boardRows.innerHTML = '';
-    if (!data.rows.length) {
-      const empty = document.createElement('div');
-      empty.className = 'row empty';
-      empty.innerHTML = '<div class="line-guide"></div>';
-      boardRows.appendChild(empty);
-      boardRows.appendChild(empty.cloneNode(true));
+    const rows = data.rows || [];
+    const focusRow = rows[0] || null;
+    const upcoming = rows.slice(1, 3);
+
+    renderFocus(focusRow, data.type);
+    renderNextList(upcoming);
+
+    if (!focusRow) {
       boardStatus.textContent += ' · keine Fahrten im Zeitfenster gefunden';
+      wagonPanel.classList.add('hidden');
       return;
     }
-    data.rows.slice(0, 6).forEach((row) => {
-      boardRows.appendChild(buildRow(row));
+    maybeLoadWagon(focusRow);
+  }
+
+  function renderFocus(row, type) {
+    if (!row) {
+      focusPanel.innerHTML = '<div class="focus-empty">Keine Fahrt im Anzeigefenster.</div>';
+      return;
+    }
+    const showPlanned = row.delayMin > 0 || row.cancelled;
+    const via = (row.path || []).slice(0, -1).slice(0, 3).join(' - ');
+
+    let metaHtml = '';
+    if (row.cancelled) metaHtml += '<span class="cancel-tag">Fällt aus</span>';
+    else if (row.delayMin > 0) metaHtml += `<span class="delay-tag">ca. +${row.delayMin} Min.</span>`;
+    else metaHtml += '<span class="ontime-tag">pünktlich</span>';
+    if (row.platformChanged) metaHtml += `<span>Gleisänderung (statt Gleis ${row.plannedPlatform})</span>`;
+
+    focusPanel.innerHTML = `
+      <div class="focus-time">
+        <div class="planned">${showPlanned ? row.plannedTime || '' : ''}</div>
+        <div class="actual ${row.cancelled ? 'cancelled' : row.delayMin > 0 ? 'delayed' : ''}">${row.time || row.plannedTime || '--:--'}</div>
+      </div>
+      <div class="focus-main">
+        <div class="focus-line-row">
+          <span>${row.line || ''}${row.trainNumber ? ' / ' + row.trainNumber : ''}</span>
+          <span class="via">${via}</span>
+        </div>
+        <div class="focus-destination">${row.cancelled ? 'Fahrt fällt aus' : row.destination || ''}</div>
+        <div class="focus-meta">
+          <span class="platform-chip ${row.platformChanged ? 'changed' : ''}">${row.platform || '–'}</span>
+          ${metaHtml}
+        </div>
+      </div>
+    `;
+  }
+
+  function renderNextList(rows) {
+    nextList.innerHTML = '';
+    if (!rows.length) return;
+    rows.forEach((row) => {
+      const el = document.createElement('div');
+      el.className = 'next-row' + (row.delayMin > 0 ? ' delayed' : '');
+      const via = (row.path || []).slice(0, -1).slice(0, 2).join(' - ');
+      el.innerHTML = `
+        <span class="time">${row.time || row.plannedTime || '--:--'}</span>
+        <span>${row.line || ''}</span>
+        <span class="dest">${via ? via + ' - ' : ''}${row.destination || ''}</span>
+        <span class="plat">${row.platform || '–'}</span>
+      `;
+      nextList.appendChild(el);
     });
   }
 
-  function buildRow(row) {
-    const el = document.createElement('div');
-    el.className = 'row';
-
-    const timeCell = document.createElement('div');
-    timeCell.className = 'cell-time';
-    const showPlanned = row.delayMin > 0 || row.cancelled;
-    timeCell.innerHTML = `
-      <div class="planned">${showPlanned ? row.plannedTime || '' : ''}</div>
-      <div class="actual ${row.cancelled ? 'cancelled' : row.delayMin > 0 ? 'delayed' : ''}">${row.time || row.plannedTime || '--:--'}</div>
-    `;
-
-    const routeCell = document.createElement('div');
-    routeCell.className = 'cell-route';
-    const via = (row.path || []).slice(0, -1).join(' - ');
-    routeCell.innerHTML = `
-      <div class="line">${row.line || ''}${via ? ' &nbsp;' + via : ''}</div>
-      <div class="destination">${row.cancelled ? 'Fahrt fällt aus' : row.destination || ''}</div>
-    `;
-
-    const platformCell = document.createElement('div');
-    platformCell.className = 'cell-platform' + (row.platformChanged ? ' changed' : '');
-    platformCell.textContent = row.platform || '–';
-
-    const statusCell = document.createElement('div');
-    statusCell.className = 'cell-status';
-    if (row.cancelled) {
-      statusCell.innerHTML = '<span class="cancel-tag">Fällt aus</span>';
-    } else if (row.delayMin > 0) {
-      statusCell.innerHTML = `<span class="delay-tag">ca. +${row.delayMin} Min.</span>`;
-    } else {
-      statusCell.innerHTML = '<span class="ontime-tag">pünktlich</span>';
+  async function maybeLoadWagon(row) {
+    if (row.cancelled || !row.trainNumber || !row.plannedTimeRaw) {
+      wagonPanel.classList.add('hidden');
+      return;
     }
-    if (row.platformChanged) {
-      statusCell.innerHTML += `<span>Gleisänderung (statt ${row.plannedPlatform})</span>`;
+    const key = `${row.tripId}`;
+    if (key === lastWagonKey) return; // schon geladen, nicht bei jedem Poll neu anfragen
+    lastWagonKey = key;
+    try {
+      const params = new URLSearchParams({
+        trainNumber: row.trainNumber,
+        plannedTime: row.plannedTimeRaw,
+        category: row.category || '',
+      });
+      const res = await fetch(`/api/wagenreihung?${params.toString()}`);
+      const data = await res.json();
+      renderWagonPanel(data, row);
+    } catch (e) {
+      wagonPanel.classList.add('hidden');
     }
+  }
 
-    el.appendChild(timeCell);
-    el.appendChild(routeCell);
-    el.appendChild(platformCell);
-    el.appendChild(statusCell);
-    return el;
+  function renderWagonPanel(data, row) {
+    if (!data.available || !data.wagons.length) {
+      wagonPanel.classList.add('hidden');
+      return;
+    }
+    wagonPanel.classList.remove('hidden');
+    const track = data.wagons
+      .map((w) => {
+        const cls = w.wagonClass === '1' || w.wagonClass === 1 ? 'first-class' : '';
+        return `<div class="wagon-unit ${cls}">
+          <div class="wagon-num">${w.wagonNumber ?? ''}</div>
+          <div>${w.sector || ''}</div>
+        </div>`;
+      })
+      .join('');
+    wagonPanel.innerHTML = `
+      <div class="wagon-panel-title">Wagenreihung ${row.line || ''} ${row.trainNumber || ''} · Fahrtrichtung wie eingefahren</div>
+      <div class="wagon-track">${track}</div>
+      <div class="wagon-note">Quelle: DB-Wagenreihungs-API (inoffiziell) · nur Fernverkehr, kann bei Kurzentschlossenem Ersatzverkehr abweichen</div>
+    `;
   }
 
   // ---------- Uhr ----------
