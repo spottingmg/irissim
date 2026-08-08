@@ -3,15 +3,14 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>dilaeit live – Echtzeit-Zugzielanzeiger</title>
+<title>IRIS+ Simulator</title>
 <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
 
   <section id="setup" class="setup">
     <div class="setup-card">
-      <h1>dilaeit <span>live</span></h1>
-      <p class="setup-sub">Echtzeit-Zugzielanzeiger auf Basis der DB IRIS-TTS-Schnittstelle.</p>
+      <p class="setup-sub">Echtzeit-Bahnsteiganzeiger auf Basis der DB IRIS-TTS-Schnittstelle.</p>
 
       <label for="station-input">Bahnhof (Name oder RIL100, z. B. „KM“)</label>
       <input id="station-input" type="text" autocomplete="off" placeholder="Mönchengladbach Hbf oder KM" />
@@ -28,7 +27,7 @@
 
       <label class="checkbox">
         <input id="announce-toggle" type="checkbox" checked />
-        Ansagen aktivieren (IRIS+-Logik)
+        Ansagen aktivieren (IRIS+ -Logik)
       </label>
 
       <button id="start-btn">Monitor öffnen</button>
@@ -46,11 +45,13 @@
       <button id="exit-btn" class="exit-btn" title="Monitor schließen">✕</button>
     </header>
 
-    <div id="board-rows" class="board-rows"></div>
+    <div id="focus-panel" class="focus-panel"></div>
+    <div id="wagon-panel" class="wagon-panel hidden"></div>
+    <div id="next-list" class="next-list"></div>
 
     <footer class="board-footer">
       <span id="board-status">Verbinde mit IRIS-TTS …</span>
-      <span class="board-footer-right">dilaeit live · inoffiziell, keine Gewähr</span>
+      <span class="board-footer-right">inoffiziell, keine Gewähr</span>
     </footer>
   </section>
 
