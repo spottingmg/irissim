@@ -5,7 +5,7 @@
   const typeSelect = document.getElementById('type-select');
   const announceToggle = document.getElementById('announce-toggle');
   const startBtn = document.getElementById('start-btn');
-  const exitBtn = document.getElementById('exit-btn'); 
+  const exitBtn = document.getElementById('exit-btn');
 
   const setupSection = document.getElementById('setup');
   const boardSection = document.getElementById('board');
@@ -135,8 +135,7 @@
     let metaHtml = '';
     if (row.cancelled) metaHtml += '<span class="cancel-tag">Fällt aus</span>';
     else if (row.delayMin > 0) metaHtml += `<span class="delay-tag">ca. +${row.delayMin} Min.</span>`;
-    else metaHtml += '<span class="ontime-tag">pünktlich</span>';
-    if (row.platformChanged) metaHtml += `<span>Gleisänderung (statt Gleis ${row.plannedPlatform})</span>`;
+    if (row.platformChanged) metaHtml += `<span class="platform-change-tag">Gleisänderung (statt Gleis ${row.plannedPlatform})</span>`;
 
     focusPanel.innerHTML = `
       <div class="focus-time">
@@ -149,10 +148,7 @@
           <span class="via">${via}</span>
         </div>
         <div class="focus-destination">${row.cancelled ? 'Fahrt fällt aus' : row.destination || ''}</div>
-        <div class="focus-meta">
-          <span class="platform-chip ${row.platformChanged ? 'changed' : ''}">${row.platform || '–'}</span>
-          ${metaHtml}
-        </div>
+        ${metaHtml ? `<div class="focus-meta">${metaHtml}</div>` : ''}
       </div>
     `;
   }
@@ -163,12 +159,11 @@
     rows.forEach((row) => {
       const el = document.createElement('div');
       el.className = 'next-row' + (row.delayMin > 0 ? ' delayed' : '');
-      const via = (row.path || []).slice(0, -1).slice(0, 2).join(' - ');
+      const via = (row.path || []).slice(0, -1).slice(0, 1)[0]; // nur der naechste Zwischenhalt, wie im Original
       el.innerHTML = `
         <span class="time">${row.time || row.plannedTime || '--:--'}</span>
         <span>${row.line || ''}</span>
-        <span class="dest">${via ? via + ' - ' : ''}${row.destination || ''}</span>
-        <span class="plat">${row.platform || '–'}</span>
+        <span class="dest">${row.destination || ''}${via ? ` <span class="via-suffix">via ${via}</span>` : ''}</span>
       `;
       nextList.appendChild(el);
     });
@@ -202,19 +197,25 @@
       return;
     }
     wagonPanel.classList.remove('hidden');
-    const track = data.wagons
-      .map((w) => {
-        const cls = w.wagonClass === '1' || w.wagonClass === 1 ? 'first-class' : '';
-        return `<div class="wagon-unit ${cls}">
-          <div class="wagon-num">${w.wagonNumber ?? ''}</div>
-          <div>${w.sector || ''}</div>
-        </div>`;
-      })
-      .join('');
+
+    // Sektorbuchstaben in Fahrtreihenfolge, doppelte/leere raus, wie auf dem Vorbild (z.B. D C B A)
+    const sectors = [];
+    for (const w of data.wagons) {
+      const s = (w.sector || '').toString().trim();
+      if (s && sectors[sectors.length - 1] !== s) sectors.push(s);
+    }
+
+    const doors = data.wagons
+      .map((w) => `<div class="door${w.wagonClass === '1' || w.wagonClass === 1 ? ' first-class' : ''}"></div>`)
+      .join('<div class="rail"></div>');
+
     wagonPanel.innerHTML = `
-      <div class="wagon-panel-title">Wagenreihung ${row.line || ''} ${row.trainNumber || ''} · Fahrtrichtung wie eingefahren</div>
-      <div class="wagon-track">${track}</div>
-      <div class="wagon-note">Quelle: DB-Wagenreihungs-API (inoffiziell) · nur Fernverkehr, kann bei Kurzentschlossenem Ersatzverkehr abweichen</div>
+      ${sectors.length ? `<div class="sector-labels">${sectors.map((s) => `<span>${s}</span>`).join('')}</div>` : ''}
+      <div class="door-track">
+        <div class="rail"></div>${doors}<div class="rail"></div>
+        <span class="arrow">➜</span>
+      </div>
+      <div class="wagon-note">Wagenreihung ${row.line || ''}${row.trainNumber ? ' ' + row.trainNumber : ''} · Quelle: DB-Wagenreihungs-API (inoffiziell, nur Fernverkehr)</div>
     `;
   }
 
