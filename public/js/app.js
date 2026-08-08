@@ -5,7 +5,7 @@
   const typeSelect = document.getElementById('type-select');
   const announceToggle = document.getElementById('announce-toggle');
   const startBtn = document.getElementById('start-btn');
-  const exitBtn = document.getElementById('exit-btn');
+  const exitBtn = document.getElementById('exit-btn'); 
 
   const setupSection = document.getElementById('setup');
   const boardSection = document.getElementById('board');
