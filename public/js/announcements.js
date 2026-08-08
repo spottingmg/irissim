@@ -106,7 +106,7 @@
   }
 
   function handleUpdate(board) {
-    if (!window.dilaeitLive?.announceEnabled) return;
+    if (!window.irisSimState?.announceEnabled) return;
     const seenIds = new Set();
     for (const row of board.rows) {
       seenIds.add(row.tripId);
@@ -143,5 +143,5 @@
     for (const id of tripState.keys()) if (!seenIds.has(id)) tripState.delete(id);
   }
 
-  window.addEventListener('dilaeit-board-update', (ev) => handleUpdate(ev.detail));
+  window.addEventListener('board-update', (ev) => handleUpdate(ev.detail));
 })();
