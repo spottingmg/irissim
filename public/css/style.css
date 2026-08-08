@@ -191,14 +191,22 @@ html, body {
 
 /* ---------- Fokus-Panel (aktueller/naechster Zug) ---------- */
 
+.board-card {
+  border: 2px solid #2f45d6;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+/* ---------- Fokus-Panel (aktueller/naechster Zug) ---------- */
+
 .focus-panel {
-  background: var(--board-bg);
-  border-radius: 4px;
-  padding: 22px 28px;
+  background: transparent;
+  padding: 20px 26px 16px;
   display: grid;
   grid-template-columns: 150px 1fr;
   gap: 18px;
   align-items: start;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
 }
 
 .focus-time {
@@ -251,18 +259,9 @@ html, body {
   align-items: center;
   font-size: 15px;
 }
-.focus-meta .platform-chip {
-  background: var(--amber);
-  color: var(--outer-bg);
-  font-weight: 800;
-  padding: 4px 14px;
-  border-radius: 6px;
-  font-size: 22px;
-}
-.focus-meta .platform-chip.changed { background: var(--red); color: var(--text); }
 .focus-meta .delay-tag { color: var(--amber); font-weight: 700; }
 .focus-meta .cancel-tag { color: var(--red); font-weight: 700; }
-.focus-meta .ontime-tag { color: var(--green); }
+.focus-meta .platform-change-tag { color: var(--amber); font-weight: 700; }
 .focus-empty {
   padding: 40px 0;
   text-align: center;
@@ -270,83 +269,71 @@ html, body {
   font-size: 18px;
 }
 
-/* ---------- Wagenstandanzeige (Perlenschnur) ---------- */
+/* ---------- Bahnsteigskizze (Tueren/Sektoren, wie am echten IRIS+-Zeiger) ---------- */
 
 .wagon-panel {
-  background: #0e132e;
-  border: 1px solid #1c2454;
-  border-radius: 4px;
-  padding: 14px 24px 18px;
+  background: transparent;
+  padding: 12px 26px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
 }
-.wagon-panel-title {
-  font-size: 12px;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 10px;
-}
-.wagon-track {
+.sector-labels {
   display: flex;
-  align-items: flex-end;
-  gap: 3px;
-  overflow-x: auto;
-  padding-bottom: 6px;
-}
-.wagon-track::before {
-  content: '';
-}
-.wagon-unit {
-  flex: 0 0 auto;
-  min-width: 46px;
-  background: #1c2f8f;
-  border: 1px solid #34449e;
-  border-radius: 4px 4px 2px 2px;
-  padding: 6px 4px 4px;
-  text-align: center;
-  font-size: 11px;
-  color: var(--text-dim);
-}
-.wagon-unit .wagon-num {
-  color: var(--text);
-  font-weight: 700;
+  justify-content: space-between;
+  padding: 0 6px 2px;
   font-size: 13px;
+  color: var(--text-dim);
+  letter-spacing: 2px;
 }
-.wagon-unit.first-class { border-color: var(--amber); }
-.wagon-sectors {
+.door-track {
   display: flex;
-  gap: 3px;
-  margin-top: 4px;
-  font-size: 10px;
-  color: #5b66a0;
+  align-items: center;
+  gap: 4px;
+}
+.door-track .rail {
+  flex: 1;
+  height: 2px;
+  background: var(--text-dim);
+  opacity: 0.6;
+}
+.door-track .door {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--text-dim);
+  border-radius: 50%;
+  flex: 0 0 auto;
+}
+.door-track .door.first-class { border-color: var(--amber); }
+.door-track .arrow {
+  flex: 0 0 auto;
+  color: var(--text-dim);
+  font-size: 18px;
+  margin-left: 4px;
 }
 .wagon-note {
-  margin-top: 10px;
-  font-size: 12px;
+  margin-top: 6px;
+  font-size: 11px;
   color: #5b66a0;
 }
 
 /* ---------- Naechste Abfahrten (Mini-Liste) ---------- */
 
 .next-list {
-  background: #0e132e;
-  border: 1px solid #1c2454;
-  border-radius: 4px;
-  overflow: hidden;
+  background: transparent;
 }
 .next-row {
   display: grid;
-  grid-template-columns: 70px 60px 1fr 70px;
+  grid-template-columns: 60px 55px 1fr;
   gap: 10px;
-  padding: 8px 20px;
+  padding: 7px 26px;
   font-size: 14px;
-  border-bottom: 1px solid #1c2454;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   align-items: center;
   color: var(--text-dim);
 }
 .next-row:last-child { border-bottom: none; }
 .next-row .time { color: var(--text); font-weight: 700; font-variant-numeric: tabular-nums; }
 .next-row .dest { color: var(--text); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-.next-row .plat { text-align: right; color: var(--text); font-weight: 700; }
+.next-row .dest .via-suffix { color: var(--text-dim); font-weight: 400; }
 .next-row.delayed .time { color: var(--amber); }
 .board-footer {
   display: flex;
