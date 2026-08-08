@@ -5,7 +5,7 @@
  * echten System: Klang + feste Textbausteine + Variable wie Gleis/Ziel/Linie).
  * Welche Schnipsel es gibt, entscheidet allein der Inhalt von /public/sounds/ –
  * fehlende Dateien werden einfach uebersprungen, es gibt also nie einen Fehler,
- * nur eine luecken­haftere Ansage. Das genaue Namensschema steht im README
+ * nur eine luecken­haftere Ansage. Das genaue Namensschema steht im README.
  */
 (function () {
   const player = document.getElementById('audio-player');
@@ -13,17 +13,27 @@
   const ABFAHRT_SCHWELLE_MIN = 0; // ab wann "Zurueckbleiben" ausgeloest wird
 
   let availableSounds = new Set();
+  let soundIndex = new Map(); // "ordner/basisname" (lowercase, ohne Endung) -> echter Pfad mit Endung
   let tripState = new Map(); // tripId -> { einfahrt, abfahrtbereit, delay, cancelled, gleiswechsel }
   let queue = [];
   let playing = false;
+
+  function stripExt(rel) {
+    return rel.replace(/\.(mp3|wav|ogg)$/i, '');
+  }
 
   async function loadManifest() {
     try {
       const res = await fetch('/api/sounds');
       const list = await res.json();
       availableSounds = new Set(list);
+      soundIndex = new Map();
+      for (const rel of list) {
+        soundIndex.set(stripExt(rel).toLowerCase(), rel);
+      }
     } catch (e) {
       availableSounds = new Set();
+      soundIndex = new Map();
     }
   }
   loadManifest();
@@ -37,39 +47,45 @@
       .replace(/^_+|_+$/g, '');
   }
 
-  function has(rel) { return availableSounds.has(rel); }
+  // Loest einen Ordner/Basisname-Schluessel (ohne Dateiendung) unabhaengig von
+  // Gross-/Kleinschreibung und tatsaechlicher Endung (.mp3/.wav/.ogg) auf.
+  function resolve(baseKey) {
+    return soundIndex.get(baseKey.toLowerCase()) || null;
+  }
 
   function segmentsFor(row, eventType) {
     const platform = row.platform || '';
     const category = (row.category || '').toLowerCase();
     const destSlug = slugify(row.destination);
-    const s = [];
+    const keys = [];
 
     switch (eventType) {
       case 'einfahrt':
-        s.push('chime/2ton.mp3', 'phrasen/einfahrt_auf_gleis.mp3', `zahlen/${platform}.mp3`,
-          'phrasen/faehrt_ein.mp3', `linien/${category}.mp3`, 'phrasen/nach.mp3',
-          `orte/${destSlug}.mp3`, 'phrasen/bitte_abstand.mp3');
+        keys.push('chime/2ton', 'phrasen/einfahrt_auf_gleis', `zahlen/${platform}`,
+          'phrasen/faehrt_ein', `linien/${category}`, 'phrasen/nach',
+          `orte/${destSlug}`, 'phrasen/bitte_abstand');
         break;
       case 'abfahrtbereit':
-        s.push('chime/3ton.mp3', `zahlen/${platform}.mp3`, 'phrasen/tueren_schliessen.mp3',
-          'phrasen/zurueckbleiben.mp3');
+        keys.push('chime/3ton', `zahlen/${platform}`, 'phrasen/tueren_schliessen',
+          'phrasen/zurueckbleiben');
         break;
       case 'verspaetung':
-        s.push('chime/3ton.mp3', `linien/${category}.mp3`, 'phrasen/nach.mp3', `orte/${destSlug}.mp3`,
-          'phrasen/verspaetung_heute.mp3', `zahlen/${row.delayMin}.mp3`, 'phrasen/minuten_verspaetung.mp3');
+        keys.push('chime/3ton', `linien/${category}`, 'phrasen/nach', `orte/${destSlug}`,
+          'phrasen/verspaetung_heute', `zahlen/${row.delayMin}`, 'phrasen/minuten_verspaetung');
         break;
       case 'ausfall':
-        s.push('chime/3ton.mp3', `linien/${category}.mp3`, 'phrasen/nach.mp3', `orte/${destSlug}.mp3`,
-          'phrasen/faellt_aus.mp3');
+        keys.push('chime/3ton', `linien/${category}`, 'phrasen/nach', `orte/${destSlug}`,
+          'phrasen/faellt_aus');
         break;
       case 'gleiswechsel':
-        s.push('chime/3ton.mp3', 'phrasen/gleiswechsel_hinweis.mp3', `linien/${category}.mp3`,
-          'phrasen/nach.mp3', `orte/${destSlug}.mp3`, 'phrasen/gleiswechsel_statt.mp3',
-          `zahlen/${row.plannedPlatform}.mp3`, 'phrasen/gleiswechsel_sondern.mp3', `zahlen/${platform}.mp3`);
+        keys.push('chime/3ton', 'phrasen/gleiswechsel_hinweis', `linien/${category}`,
+          'phrasen/nach', `orte/${destSlug}`, 'phrasen/gleiswechsel_statt',
+          `zahlen/${row.plannedPlatform}`, 'phrasen/gleiswechsel_sondern', `zahlen/${platform}`);
         break;
     }
-    return s.filter(has);
+    // jeden Basis-Key gegen den tatsaechlichen Dateinamen (Endung+Case) aufloesen,
+    // nicht aufloesbare Keys (Datei fehlt) werden einfach uebersprungen
+    return keys.map(resolve).filter(Boolean);
   }
 
   function enqueue(segments) {
