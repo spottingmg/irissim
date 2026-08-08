@@ -1,5 +1,5 @@
 {
-  "name": "dilaeit-live",
+  "name": "iris-plus-simulator",
   "version": "0.1.0",
   "description": "Echtzeit-Zugzielanzeiger (DB IRIS-TTS) mit Bahnhofsansagen im IRIS+-Stil",
   "main": "server/index.js",
