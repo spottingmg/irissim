@@ -1,4 +1,4 @@
-# dilaeit live
+# IRIS+ Simulator
 
 Echtzeit-Zugzielanzeiger für einen einzelnen Bahnhof/Gleis, ausschließlich auf
 Basis der **DB IRIS-TTS-Schnittstelle** (`iris.noncd.db.de`) – keine
@@ -94,12 +94,12 @@ npm start
 ## Auf GitHub veröffentlichen
 
 ```bash
-cd dilaeit-live
+cd iris-plus-simulator
 git init
 git add .
-git commit -m "Initial commit: dilaeit live"
-gh repo create dilaeit-live --public --source=. --push
-# oder manuell: git remote add origin https://github.com/<user>/dilaeit-live.git && git push -u origin main
+git commit -m "Initial commit: IRIS+ Simulator"
+gh repo create iris-plus-simulator --public --source=. --push
+# oder manuell: git remote add origin https://github.com/<user>/iris-plus-simulator.git && git push -u origin main
 ```
 
 ## Auf Render deployen
@@ -108,7 +108,7 @@ gh repo create dilaeit-live --public --source=. --push
 2. Build Command: `npm install`
 3. Start Command: `npm start`
 4. Environment-Variable `APP_URL` = `https://<dein-service>.onrender.com`
-   setzen, damit der Self-Ping (wie bei dilaeit) den Free-Tier-Sleep verhindert
+   setzen, damit der Self-Ping (Self-Ping) den Free-Tier-Sleep verhindert
 
 ## Hinweis zu den Sounddateien
 
@@ -119,6 +119,24 @@ bzw. nur auf Render, ohne rechtliche Fragen im Repo selbst aufzuwerfen. Auf
 Render einfach über die Shell/ein eigenes Deploy-Skript hochladen, oder den
 `.gitignore`-Eintrag entfernen, wenn du selbst eingesprochene/lizenzfreie
 Sounds nutzt.
+
+## Wagenstandanzeige (Perlenschnur)
+
+`server/wagenreihung.js` ruft die inoffizielle DB-Wagenreihungs-API
+(`ist-wr.noncd.db.de/wagenreihung/1.0/<Zugnummer>/<Zeit>`) auf und zeigt bei
+ICE/IC/EC im Bahnsteigzeiger zusätzlich die Wagenreihung an. Das ist laut
+DB-eigener FAQ **nur für den Fernverkehr am aktuellen Tag** zuverlässig – bei
+RE/RB/S-Bahn liefert die API meist "keine Wagenreihung verfügbar", das
+Panel wird dann automatisch ausgeblendet.
+
+Da das Antwortformat dieser API nirgends offiziell dokumentiert ist (nur
+über mehrere reverse-engineerte Projekte bekannt: `Travel::Status::DE::DBWagenreihung`,
+`db-wagenreihung-php`, `juliuste/db-wagenreihung`), ist `normalize()` in
+`server/wagenreihung.js` bewusst defensiv geschrieben und sucht Felder unter
+mehreren bekannten Namen. Falls nach dem Deploy die Sektorbuchstaben (A–E)
+fehlen oder falsch aussehen: im Log/DevTools die Rohantwort von
+`/api/wagenreihung?...` ansehen und die Feldnamen in `normalize()` anpassen –
+ich konnte diese Schnittstelle in der Sandbox nicht live testen.
 
 ## Bekannte Grenzen (Stand jetzt)
 
