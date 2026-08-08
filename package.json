@@ -1,0 +1,16 @@
+{
+  "name": "dilaeit-live",
+  "version": "0.1.0",
+  "description": "Echtzeit-Zugzielanzeiger (DB IRIS-TTS) mit Bahnhofsansagen im IRIS+-Stil",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "fast-xml-parser": "^4.5.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

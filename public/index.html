@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>dilaeit live – Echtzeit-Zugzielanzeiger</title>
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+  <section id="setup" class="setup">
+    <div class="setup-card">
+      <h1>dilaeit <span>live</span></h1>
+      <p class="setup-sub">Echtzeit-Zugzielanzeiger auf Basis der DB IRIS-TTS-Schnittstelle.</p>
+
+      <label for="station-input">Bahnhof (Name oder RIL100, z. B. „KM“)</label>
+      <input id="station-input" type="text" autocomplete="off" placeholder="Mönchengladbach Hbf oder KM" />
+      <div id="station-suggestions" class="suggestions"></div>
+
+      <label for="platform-input">Gleis</label>
+      <input id="platform-input" type="text" placeholder="z. B. 1" />
+
+      <label for="type-select">Anzeigeart</label>
+      <select id="type-select">
+        <option value="departure">Abfahrt</option>
+        <option value="arrival">Ankunft</option>
+      </select>
+
+      <label class="checkbox">
+        <input id="announce-toggle" type="checkbox" checked />
+        Ansagen aktivieren (IRIS+-Logik)
+      </label>
+
+      <button id="start-btn">Monitor öffnen</button>
+      <p class="setup-hint">Sounddateien liegen unter <code>/public/sounds/</code> – siehe README für das Namensschema.</p>
+    </div>
+  </section>
+
+  <section id="board" class="board hidden">
+    <header class="board-header">
+      <div class="board-title">
+        <span id="board-station-name">–</span>
+        <span id="board-platform-badge" class="platform-badge">Gleis –</span>
+      </div>
+      <div class="board-clock" id="board-clock">--:--:--</div>
+      <button id="exit-btn" class="exit-btn" title="Monitor schließen">✕</button>
+    </header>
+
+    <div id="board-rows" class="board-rows"></div>
+
+    <footer class="board-footer">
+      <span id="board-status">Verbinde mit IRIS-TTS …</span>
+      <span class="board-footer-right">dilaeit live · inoffiziell, keine Gewähr</span>
+    </footer>
+  </section>
+
+  <audio id="audio-player" preload="none"></audio>
+
+  <script src="/js/app.js"></script>
+  <script src="/js/announcements.js"></script>
+</body>
+</html>
