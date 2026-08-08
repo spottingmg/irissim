@@ -5,7 +5,7 @@
  * echten System: Klang + feste Textbausteine + Variable wie Gleis/Ziel/Linie).
  * Welche Schnipsel es gibt, entscheidet allein der Inhalt von /public/sounds/ –
  * fehlende Dateien werden einfach uebersprungen, es gibt also nie einen Fehler,
- * nur eine luecken­haftere Ansage. Das genaue Namensschema steht im README.
+ * nur eine luecken­haftere Ansage. Das genaue Namensschema steht im README
  */
 (function () {
   const player = document.getElementById('audio-player');
