@@ -38,7 +38,29 @@ function searchStations(query, limit = 8) {
   return results;
 }
 
-// ---------- Zeit-Hilfsfunktionen (IRIS-Zeitformat: YYMMDDHHmm, naiv als Berlin-Ortszeit) ----------
+// ---------- Zeit-Hilfsfunktionen (IRIS-Zeitformat: YYMMDDHHmm, Berliner Ortszeit) ----------
+
+// Wandelt einen beliebigen Zeitpunkt in seine Berlin-Ortszeit-Bestandteile um
+// (beruecksichtigt automatisch Sommer-/Winterzeit) - notwendig, weil IRIS-TTS
+// durchgehend in Berliner Ortszeit rechnet, nicht in UTC.
+function berlinParts(date) {
+  const fmt = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Europe/Berlin',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit',
+    hour12: false,
+  });
+  const get = (t) => fmt.formatToParts(date).find((p) => p.type === t).value;
+  let hour = parseInt(get('hour'), 10);
+  if (hour === 24) hour = 0; // manche ICU-Implementierungen geben Mitternacht als '24' aus
+  return {
+    year: parseInt(get('year'), 10),
+    month: parseInt(get('month'), 10),
+    day: parseInt(get('day'), 10),
+    hour,
+    minute: parseInt(get('minute'), 10),
+  };
+}
 
 function parseIrisTime(str) {
   if (!str || str.length !== 10) return null;
@@ -68,10 +90,11 @@ async function fetchXml(url) {
 function pad2(n) { return String(n).padStart(2, '0'); }
 
 function planUrl(eva, date) {
-  const yy = pad2(date.getUTCFullYear() % 100);
-  const mm = pad2(date.getUTCMonth() + 1);
-  const dd = pad2(date.getUTCDate());
-  const hh = pad2(date.getUTCHours());
+  const p = berlinParts(date);
+  const yy = pad2(p.year % 100);
+  const mm = pad2(p.month);
+  const dd = pad2(p.day);
+  const hh = pad2(p.hour);
   return `${BASE}/plan/${eva}/${yy}${mm}${dd}/${hh}`;
 }
 
@@ -183,9 +206,10 @@ async function getBoard(stationQuery, opts = {}) {
   const changeMap = indexById(changes);
 
   const now = parseIrisTime(
-    `${pad2(new Date().getUTCFullYear() % 100)}${pad2(new Date().getUTCMonth() + 1)}${pad2(
-      new Date().getUTCDate()
-    )}${pad2(new Date().getUTCHours())}${pad2(new Date().getUTCMinutes())}`
+    (() => {
+      const p = berlinParts(new Date());
+      return `${pad2(p.year % 100)}${pad2(p.month)}${pad2(p.day)}${pad2(p.hour)}${pad2(p.minute)}`;
+    })()
   );
 
   const rows = [];
