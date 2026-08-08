@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
 <head>
 <meta charset="utf-8" />
@@ -27,7 +27,7 @@
 
       <label class="checkbox">
         <input id="announce-toggle" type="checkbox" checked />
-        Ansagen aktivieren (IRIS+ -Logik)
+        Ansagen aktivieren (IRIS+-Logik)
       </label>
 
       <button id="start-btn">Monitor öffnen</button>
@@ -45,9 +45,11 @@
       <button id="exit-btn" class="exit-btn" title="Monitor schließen">✕</button>
     </header>
 
-    <div id="focus-panel" class="focus-panel"></div>
-    <div id="wagon-panel" class="wagon-panel hidden"></div>
-    <div id="next-list" class="next-list"></div>
+    <div class="board-card">
+      <div id="focus-panel" class="focus-panel"></div>
+      <div id="wagon-panel" class="wagon-panel hidden"></div>
+      <div id="next-list" class="next-list"></div>
+    </div>
 
     <footer class="board-footer">
       <span id="board-status">Verbinde mit IRIS-TTS …</span>
