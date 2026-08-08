@@ -189,88 +189,165 @@ html, body {
   flex-direction: column;
 }
 
-.row {
+/* ---------- Fokus-Panel (aktueller/naechster Zug) ---------- */
+
+.focus-panel {
+  background: var(--board-bg);
+  border-radius: 4px;
+  padding: 22px 28px;
   display: grid;
-  grid-template-columns: 130px 1fr 110px 130px;
-  border-bottom: 3px solid var(--divider);
-  min-height: 108px;
-  padding: 14px 22px;
-  gap: 10px;
-  position: relative;
-}
-.row:last-child { border-bottom: none; }
-
-.row.empty { min-height: 54px; }
-.row.empty .line-guide {
-  border-top: 2px solid #cfd7ff;
-  opacity: 0.5;
-  align-self: center;
-  grid-column: 1 / -1;
+  grid-template-columns: 150px 1fr;
+  gap: 18px;
+  align-items: start;
 }
 
-.cell-time {
+.focus-time {
   display: flex;
   flex-direction: column;
-  justify-content: center;
 }
-.cell-time .planned {
-  font-size: 13px;
+.focus-time .planned {
+  font-size: 15px;
   color: var(--text-dim);
   text-decoration: line-through;
-  min-height: 16px;
+  min-height: 18px;
 }
-.cell-time .actual {
-  font-size: 42px;
+.focus-time .actual {
+  font-size: 52px;
   font-weight: 800;
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
-.cell-time .actual.delayed { color: var(--amber); }
-.cell-time .actual.cancelled { color: var(--red); text-decoration: line-through; }
+.focus-time .actual.delayed { color: var(--amber); }
+.focus-time .actual.cancelled { color: var(--red); text-decoration: line-through; }
 
-.cell-route {
+.focus-main { overflow: hidden; }
+.focus-line-row {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  overflow: hidden;
-}
-.cell-route .line {
-  font-size: 15px;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
   color: var(--text-dim);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 16px;
 }
-.cell-route .destination {
-  font-size: 38px;
-  font-weight: 700;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.cell-platform {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 38px;
-  font-weight: 800;
-}
-.cell-platform.changed { color: var(--amber); }
-
-.cell-status {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-end;
-  font-size: 14px;
+.focus-line-row .via {
+  flex: 1;
   text-align: right;
-  gap: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.cell-status .delay-tag { color: var(--amber); font-weight: 700; }
-.cell-status .cancel-tag { color: var(--red); font-weight: 700; }
-.cell-status .ontime-tag { color: var(--green); }
+.focus-destination {
+  font-size: 46px;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 4px;
+}
+.focus-meta {
+  margin-top: 10px;
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  font-size: 15px;
+}
+.focus-meta .platform-chip {
+  background: var(--amber);
+  color: var(--outer-bg);
+  font-weight: 800;
+  padding: 4px 14px;
+  border-radius: 6px;
+  font-size: 22px;
+}
+.focus-meta .platform-chip.changed { background: var(--red); color: var(--text); }
+.focus-meta .delay-tag { color: var(--amber); font-weight: 700; }
+.focus-meta .cancel-tag { color: var(--red); font-weight: 700; }
+.focus-meta .ontime-tag { color: var(--green); }
+.focus-empty {
+  padding: 40px 0;
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 18px;
+}
 
+/* ---------- Wagenstandanzeige (Perlenschnur) ---------- */
+
+.wagon-panel {
+  background: #0e132e;
+  border: 1px solid #1c2454;
+  border-radius: 4px;
+  padding: 14px 24px 18px;
+}
+.wagon-panel-title {
+  font-size: 12px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+.wagon-track {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+.wagon-track::before {
+  content: '';
+}
+.wagon-unit {
+  flex: 0 0 auto;
+  min-width: 46px;
+  background: #1c2f8f;
+  border: 1px solid #34449e;
+  border-radius: 4px 4px 2px 2px;
+  padding: 6px 4px 4px;
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+.wagon-unit .wagon-num {
+  color: var(--text);
+  font-weight: 700;
+  font-size: 13px;
+}
+.wagon-unit.first-class { border-color: var(--amber); }
+.wagon-sectors {
+  display: flex;
+  gap: 3px;
+  margin-top: 4px;
+  font-size: 10px;
+  color: #5b66a0;
+}
+.wagon-note {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #5b66a0;
+}
+
+/* ---------- Naechste Abfahrten (Mini-Liste) ---------- */
+
+.next-list {
+  background: #0e132e;
+  border: 1px solid #1c2454;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.next-row {
+  display: grid;
+  grid-template-columns: 70px 60px 1fr 70px;
+  gap: 10px;
+  padding: 8px 20px;
+  font-size: 14px;
+  border-bottom: 1px solid #1c2454;
+  align-items: center;
+  color: var(--text-dim);
+}
+.next-row:last-child { border-bottom: none; }
+.next-row .time { color: var(--text); font-weight: 700; font-variant-numeric: tabular-nums; }
+.next-row .dest { color: var(--text); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.next-row .plat { text-align: right; color: var(--text); font-weight: 700; }
+.next-row.delayed .time { color: var(--amber); }
 .board-footer {
   display: flex;
   justify-content: space-between;
@@ -279,8 +356,8 @@ html, body {
 }
 
 @media (max-width: 720px) {
-  .row { grid-template-columns: 90px 1fr 70px; }
-  .cell-status { display: none; }
-  .cell-route .destination { font-size: 26px; }
-  .cell-time .actual { font-size: 30px; }
+  .focus-panel { grid-template-columns: 1fr; }
+  .focus-destination { font-size: 32px; }
+  .focus-time .actual { font-size: 38px; }
+  .next-row { grid-template-columns: 55px 45px 1fr 45px; font-size: 13px; }
 }
