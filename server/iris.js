@@ -55,7 +55,7 @@ function parseIrisTime(str) {
 }
 
 async function fetchXml(url) {
-  const res = await fetch(url, { headers: { 'User-Agent': 'dilaeit-live/0.1 (+https://github.com/spottingmg)' } });
+  const res = await fetch(url, { headers: { 'User-Agent': 'iris-plus-simulator/0.1 (+https://github.com/spottingmg)' } });
   if (!res.ok) {
     if (res.status === 404) return null; // z.B. Stunden-Bucket ohne Zuege
     throw new Error(`IRIS-TTS ${url} -> HTTP ${res.status}`);
@@ -207,10 +207,12 @@ async function getBoard(stationQuery, opts = {}) {
       tripId: s.id,
       line: merged.line || trainLabel(s),
       category: s.tl?.c || null,
+      trainNumber: s.tl?.n || null,
       destination: merged.destination,
       path: merged.path,
       plannedTime: merged.plannedTime,
       time: merged.time,
+      plannedTimeRaw: planEvent?.pt || null,
       delayMin: merged.delayMin,
       minutesFromNow,
       plannedPlatform: merged.plannedPlatform,
