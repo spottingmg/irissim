@@ -1,350 +1,147 @@
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap');
-
-:root {
-  --board-bg: #0b1f9e;
-  --board-bg-2: #0e26b0;
-  --outer-bg: #050818;
-  --divider: #050818;
-  --text: #eef1ff;
-  --text-dim: #a9b6ee;
-  --amber: #ffb020;
-  --red: #ff5a5a;
-  --green: #46e08a;
-  --font-display: 'JetBrains Mono', 'Consolas', monospace;
+@font-face {
+  font-family: 'DBFallback';
+  src: local('Consolas'), local('Menlo'), local('monospace');
 }
 
 * { box-sizing: border-box; }
 
-html, body {
+body {
   margin: 0;
-  height: 100%;
-  background: var(--outer-bg);
-  color: var(--text);
-  font-family: var(--font-display);
+  min-height: 100vh;
+  background: #0b0b0b;
+  color: #f5c518;
+  font-family: 'DBFallback', 'Courier New', monospace;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .hidden { display: none !important; }
 
-/* ---------- Setup-Screen ---------- */
+/* --- Setup-Screen --- */
+.setup-screen {
+  background: #151515;
+  padding: 2.5rem;
+  border-radius: 8px;
+  width: min(420px, 90vw);
+  text-align: center;
+  border: 1px solid #333;
+}
+.setup-screen h1 {
+  font-size: 1.3rem;
+  letter-spacing: 0.05em;
+  margin-bottom: 1.5rem;
+  color: #f5c518;
+}
+.setup-screen label {
+  display: block;
+  text-align: left;
+  font-size: 0.85rem;
+  color: #aaa;
+  margin-bottom: 1rem;
+}
+.setup-screen input {
+  width: 100%;
+  margin-top: 0.3rem;
+  padding: 0.6rem;
+  background: #0b0b0b;
+  border: 1px solid #444;
+  color: #f5c518;
+  font-family: inherit;
+  font-size: 1rem;
+  border-radius: 4px;
+}
+.setup-screen button {
+  width: 100%;
+  padding: 0.7rem;
+  margin-top: 0.5rem;
+  background: #f5c518;
+  color: #0b0b0b;
+  border: none;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  letter-spacing: 0.03em;
+}
+.setup-screen button:hover { background: #ffd83d; }
+.error { color: #ff5c5c; font-size: 0.85rem; min-height: 1.2em; margin-top: 0.8rem; }
 
-.setup {
-  min-height: 100vh;
+/* --- Board (zudis.de-artiges Split-Flap-Panel) --- */
+.board {
+  width: min(900px, 95vw);
+  background: #111;
+  border: 2px solid #222;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.focus-train, .wagenstand, .mini-list {
+  padding: 1.2rem 1.6rem;
+  border-bottom: 1px solid #262626;
+}
+.mini-list { border-bottom: none; }
+
+.focus-row-top {
+  display: flex;
+  align-items: baseline;
+  gap: 1.2rem;
+}
+.focus-time { font-size: 2.4rem; font-weight: bold; letter-spacing: 0.02em; }
+.focus-line { font-size: 1.8rem; color: #ffe27a; }
+.focus-dest {
+  font-size: 2.4rem;
+  flex: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.focus-gleis { font-size: 1.6rem; color: #ffe27a; }
+
+.focus-via {
+  margin-top: 0.4rem;
+  font-size: 1.1rem;
+  color: #cbb14a;
+}
+.focus-status {
+  margin-top: 0.5rem;
+  font-size: 1rem;
+  min-height: 1.2em;
+}
+.focus-status.delay { color: #ff8a3d; }
+.focus-status.cancelled { color: #ff5c5c; text-transform: uppercase; }
+
+/* Wagenstand: Tuerkreise mit Sektorbuchstaben, angelehnt an zudis.de */
+.wagenstand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  overflow-x: auto;
+  min-height: 2.4rem;
+}
+.wagen-circle {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: 2px solid #f5c518;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  font-size: 0.9rem;
+  flex-shrink: 0;
 }
+.wagenstand-empty { color: #555; font-size: 0.85rem; }
 
-.setup-card {
-  width: 100%;
-  max-width: 420px;
-  background: #0e132e;
-  border: 1px solid #1c2454;
-  border-radius: 14px;
-  padding: 28px 26px 22px;
-}
-
-.setup-card h1 {
-  margin: 0 0 4px;
-  font-size: 28px;
-  letter-spacing: 1px;
-}
-.setup-card h1 span { color: var(--amber); }
-
-.setup-sub {
-  margin: 0 0 22px;
-  color: var(--text-dim);
-  font-size: 13px;
-}
-
-.setup-card label {
-  display: block;
-  font-size: 12px;
-  color: var(--text-dim);
-  margin: 14px 0 6px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.setup-card input[type="text"],
-.setup-card select {
-  width: 100%;
-  padding: 10px 12px;
-  background: #050818;
-  border: 1px solid #262f66;
-  border-radius: 8px;
-  color: var(--text);
-  font-family: var(--font-display);
-  font-size: 15px;
-}
-
-.checkbox {
-  display: flex !important;
-  align-items: center;
-  gap: 8px;
-  text-transform: none !important;
-  cursor: pointer;
-}
-.checkbox input { width: auto; }
-
-.suggestions {
-  background: #050818;
-  border: 1px solid #262f66;
-  border-top: none;
-  border-radius: 0 0 8px 8px;
-  max-height: 180px;
-  overflow-y: auto;
-}
-.suggestions div {
-  padding: 8px 12px;
-  cursor: pointer;
-  font-size: 13px;
-}
-.suggestions div:hover { background: #1c2454; }
-
-#start-btn {
-  width: 100%;
-  margin-top: 20px;
-  padding: 12px;
-  background: var(--amber);
-  color: #1a1200;
-  border: none;
-  border-radius: 8px;
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 15px;
-  letter-spacing: 0.5px;
-  cursor: pointer;
-}
-#start-btn:hover { filter: brightness(1.08); }
-
-.setup-hint {
-  margin-top: 14px;
-  font-size: 11px;
-  color: #6d78ad;
-}
-.setup-hint code { color: var(--text-dim); }
-
-/* ---------- Board ---------- */
-
-.board {
-  min-height: 100vh;
+/* Mini-Liste naechste Abfahrten */
+.mini-list-row {
   display: flex;
-  flex-direction: column;
-  background: var(--outer-bg);
-  padding: 18px;
-  gap: 14px;
+  gap: 1rem;
+  font-size: 1.05rem;
+  padding: 0.25rem 0;
+  color: #ddd;
 }
-
-.board-header {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  color: var(--text-dim);
-  font-size: 14px;
-}
-
-.board-title {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--text);
-}
-
-.platform-badge {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--outer-bg);
-  background: var(--amber);
-  padding: 3px 10px;
-  border-radius: 6px;
-}
-
-.board-clock {
-  font-size: 20px;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-
-.exit-btn {
-  background: none;
-  border: 1px solid #262f66;
-  color: var(--text-dim);
-  border-radius: 6px;
-  width: 30px;
-  height: 30px;
-  cursor: pointer;
-}
-.exit-btn:hover { color: var(--text); border-color: var(--text-dim); }
-
-.board-rows {
-  flex: 1;
-  background: var(--board-bg);
-  border-radius: 4px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-/* ---------- Fokus-Panel (aktueller/naechster Zug) ---------- */
-
-.board-card {
-  border: 2px solid #2f45d6;
-  border-radius: 6px;
-  overflow: hidden;
-}
-
-/* ---------- Fokus-Panel (aktueller/naechster Zug) ---------- */
-
-.focus-panel {
-  background: transparent;
-  padding: 20px 26px 16px;
-  display: grid;
-  grid-template-columns: 150px 1fr;
-  gap: 18px;
-  align-items: start;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
-}
-
-.focus-time {
-  display: flex;
-  flex-direction: column;
-}
-.focus-time .planned {
-  font-size: 15px;
-  color: var(--text-dim);
-  text-decoration: line-through;
-  min-height: 18px;
-}
-.focus-time .actual {
-  font-size: 52px;
-  font-weight: 800;
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-}
-.focus-time .actual.delayed { color: var(--amber); }
-.focus-time .actual.cancelled { color: var(--red); text-decoration: line-through; }
-
-.focus-main { overflow: hidden; }
-.focus-line-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 12px;
-  color: var(--text-dim);
-  font-size: 16px;
-}
-.focus-line-row .via {
-  flex: 1;
-  text-align: right;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.focus-destination {
-  font-size: 46px;
-  font-weight: 800;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  margin-top: 4px;
-}
-.focus-meta {
-  margin-top: 10px;
-  display: flex;
-  gap: 18px;
-  align-items: center;
-  font-size: 15px;
-}
-.focus-meta .delay-tag { color: var(--amber); font-weight: 700; }
-.focus-meta .cancel-tag { color: var(--red); font-weight: 700; }
-.focus-meta .platform-change-tag { color: var(--amber); font-weight: 700; }
-.focus-empty {
-  padding: 40px 0;
-  text-align: center;
-  color: var(--text-dim);
-  font-size: 18px;
-}
-
-/* ---------- Bahnsteigskizze (Tueren/Sektoren, wie am echten IRIS+-Zeiger) ---------- */
-
-.wagon-panel {
-  background: transparent;
-  padding: 12px 26px 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
-}
-.sector-labels {
-  display: flex;
-  justify-content: space-between;
-  padding: 0 6px 2px;
-  font-size: 13px;
-  color: var(--text-dim);
-  letter-spacing: 2px;
-}
-.door-track {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-.door-track .rail {
-  flex: 1;
-  height: 2px;
-  background: var(--text-dim);
-  opacity: 0.6;
-}
-.door-track .door {
-  width: 14px;
-  height: 14px;
-  border: 2px solid var(--text-dim);
-  border-radius: 50%;
-  flex: 0 0 auto;
-}
-.door-track .door.first-class { border-color: var(--amber); }
-.door-track .arrow {
-  flex: 0 0 auto;
-  color: var(--text-dim);
-  font-size: 18px;
-  margin-left: 4px;
-}
-.wagon-note {
-  margin-top: 6px;
-  font-size: 11px;
-  color: #5b66a0;
-}
-
-/* ---------- Naechste Abfahrten (Mini-Liste) ---------- */
-
-.next-list {
-  background: transparent;
-}
-.next-row {
-  display: grid;
-  grid-template-columns: 60px 55px 1fr;
-  gap: 10px;
-  padding: 7px 26px;
-  font-size: 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  align-items: center;
-  color: var(--text-dim);
-}
-.next-row:last-child { border-bottom: none; }
-.next-row .time { color: var(--text); font-weight: 700; font-variant-numeric: tabular-nums; }
-.next-row .dest { color: var(--text); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-.next-row .dest .via-suffix { color: var(--text-dim); font-weight: 400; }
-.next-row.delayed .time { color: var(--amber); }
-.board-footer {
-  display: flex;
-  justify-content: space-between;
-  color: #5b66a0;
-  font-size: 12px;
-}
-
-@media (max-width: 720px) {
-  .focus-panel { grid-template-columns: 1fr; }
-  .focus-destination { font-size: 32px; }
-  .focus-time .actual { font-size: 38px; }
-  .next-row { grid-template-columns: 55px 45px 1fr 45px; font-size: 13px; }
-}
+.mini-list-row .mtime { width: 3.2rem; color: #f5c518; }
+.mini-list-row .mline { width: 3.5rem; color: #ffe27a; }
+.mini-list-row .mdest { flex: 1; }
