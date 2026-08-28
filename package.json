@@ -1,16 +1,16 @@
 {
-  "name": "iris-plus-simulator",
-  "version": "0.1.0",
-  "description": "Echtzeit-Zugzielanzeiger (DB IRIS-TTS) mit Bahnhofsansagen im IRIS+-Stil",
+  "name": "iris-tts-app",
+  "version": "1.0.0",
+  "description": "Echtzeit-Bahnsteiganzeiger mit KI-generierten Ansagen (Fish Audio TTS) im IRIS+-Stil",
   "main": "server/index.js",
+  "type": "commonjs",
   "scripts": {
     "start": "node server/index.js"
   },
   "dependencies": {
     "express": "^4.19.2",
-    "fast-xml-parser": "^4.5.0"
-  },
-  "engines": {
-    "node": ">=18"
+    "dotenv": "^16.4.5",
+    "node-fetch": "^2.7.0",
+    "xml2js": "^0.6.2"
   }
 }
