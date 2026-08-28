@@ -1,65 +1,43 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>IRIS+ Simulator</title>
-<link rel="stylesheet" href="/css/style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bahnsteiganzeiger</title>
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
+  <div id="setup" class="setup-screen">
+    <h1>Bahnsteiganzeiger</h1>
+    <label>Bahnhof (RIL100-Code oder Name)
+      <input id="input-bahnhof" type="text" placeholder="z.B. KM oder Mönchengladbach" />
+    </label>
+    <label>Gleis
+      <input id="input-gleis" type="text" placeholder="z.B. 3" />
+    </label>
+    <button id="btn-start">Anzeige starten</button>
+    <p id="setup-error" class="error"></p>
+  </div>
 
-  <section id="setup" class="setup">
-    <div class="setup-card">
-      <p class="setup-sub">Echtzeit-Bahnsteiganzeiger auf Basis der DB IRIS-TTS-Schnittstelle.</p>
-
-      <label for="station-input">Bahnhof (Name oder RIL100, z. B. „KM“)</label>
-      <input id="station-input" type="text" autocomplete="off" placeholder="Mönchengladbach Hbf oder KM" />
-      <div id="station-suggestions" class="suggestions"></div>
-
-      <label for="platform-input">Gleis</label>
-      <input id="platform-input" type="text" placeholder="z. B. 1" />
-
-      <label for="type-select">Anzeigeart</label>
-      <select id="type-select">
-        <option value="departure">Abfahrt</option>
-        <option value="arrival">Ankunft</option>
-      </select>
-
-      <label class="checkbox">
-        <input id="announce-toggle" type="checkbox" checked />
-        Ansagen aktivieren (IRIS+-Logik)
-      </label>
-
-      <button id="start-btn">Monitor öffnen</button>
-      <p class="setup-hint">Sounddateien liegen unter <code>/public/sounds/</code> – siehe README für das Namensschema.</p>
-    </div>
-  </section>
-
-  <section id="board" class="board hidden">
-    <header class="board-header">
-      <div class="board-title">
-        <span id="board-station-name">–</span>
-        <span id="board-platform-badge" class="platform-badge">Gleis –</span>
+  <div id="board" class="board hidden">
+    <div class="focus-train">
+      <div class="focus-row focus-row-top">
+        <span id="focus-time" class="focus-time">--:--</span>
+        <span id="focus-line" class="focus-line">---</span>
+        <span id="focus-dest" class="focus-dest">-----------------</span>
+        <span id="focus-gleis" class="focus-gleis">Gl. -</span>
       </div>
-      <div class="board-clock" id="board-clock">--:--:--</div>
-      <button id="exit-btn" class="exit-btn" title="Monitor schließen">✕</button>
-    </header>
-
-    <div class="board-card">
-      <div id="focus-panel" class="focus-panel"></div>
-      <div id="wagon-panel" class="wagon-panel hidden"></div>
-      <div id="next-list" class="next-list"></div>
+      <div id="focus-via" class="focus-via"></div>
+      <div id="focus-status" class="focus-status"></div>
     </div>
 
-    <footer class="board-footer">
-      <span id="board-status">Verbinde mit IRIS-TTS …</span>
-      <span class="board-footer-right">inoffiziell, keine Gewähr</span>
-    </footer>
-  </section>
+    <div class="wagenstand" id="wagenstand"></div>
 
-  <audio id="audio-player" preload="none"></audio>
+    <div class="mini-list" id="mini-list"></div>
+  </div>
 
-  <script src="/js/app.js"></script>
-  <script src="/js/announcements.js"></script>
+  <audio id="announcement-audio" preload="none"></audio>
+
+  <script src="js/app.js"></script>
 </body>
 </html>
